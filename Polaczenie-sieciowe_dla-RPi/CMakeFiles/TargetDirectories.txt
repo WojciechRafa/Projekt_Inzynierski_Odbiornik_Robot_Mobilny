@@ -1,0 +1,3 @@
+/home/wpr/Dokumenty/CPP/Inzynierka_v2/Polaczenie-sieciowe_dla-RPi/CMakeFiles/rebuild_cache.dir
+/home/wpr/Dokumenty/CPP/Inzynierka_v2/Polaczenie-sieciowe_dla-RPi/CMakeFiles/edit_cache.dir
+/home/wpr/Dokumenty/CPP/Inzynierka_v2/Polaczenie-sieciowe_dla-RPi/CMakeFiles/Inzynierka.dir
