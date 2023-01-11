@@ -22,7 +22,7 @@ custom_data_IO(custom_data_IO_)
 
     softPwmCreate(PWM_L,0,100);
     softPwmCreate(PWM_R,0,100);
-
+//
     digitalWrite(L1,HIGH);
     digitalWrite(L2,LOW );
     digitalWrite(R1,HIGH);
@@ -37,64 +37,32 @@ void GPIO_Control::update() {
 
     int new_iterator = get_variable_int("Iterator");
 
+
     if(new_iterator != iterator){
         iterator = new_iterator;
         cycle_without_iterator_update = 0;
     } else{
+
         cycle_without_iterator_update ++;
     }
 
     if(cycle_without_iterator_update > 10){
-        //std::cout << "Utrata kontaktu \n";
+        std::cout << "Utrata kontaktu, cykle bez update - "<< cycle_without_iterator_update <<"\n";
         power_left = 0;
         power_right = 0;
     }
 
     // aktualizacja mocy
     int mode_left = get_variable_int("Tryb_mocy_lewy_silnik");
+    update_power(power_left, mode_left);
 
-    switch (mode_left) {
-        case -1:
-            //std::cout<<"A"<<std::endl;
-            power_left -= 10;
-            if(power_left < -100)
-                power_left = -100;
-            break;
-
-        case 0:
-            //std::cout<<"B"<<std::endl;
-            power_left = 0;
-            break;
-
-        case 1:
-            //std::cout<<"C"<<std::endl;
-            power_left += 10;
-            if(power_left > 100)
-                power_left = 100;
-            break;
-    }
 
     int mode_right = get_variable_int("Tryb_mocy_prawy_silnik");
+    update_power(power_right, mode_right);
 
-    switch (mode_right) {
-        case -1:
-            power_right -= 10;
-            if(power_right < -100)
-                power_right = -100;
-            break;
 
-        case 0:
-            power_right = 0;
-            break;
+    std::cout<<" moc   lewy - "<<power_left<<" prawy "<<power_right<<std::endl;
 
-        case 1:
-            power_right += 10;
-            if(power_right > 100)
-                power_right = 100;
-            break;
-    }
-
-    softPwmWrite(PWM_L, power_left);
     if(power_left < 0){
         std::cout<<"Tyl L \n";
         digitalWrite(L1, LOW);
@@ -107,8 +75,8 @@ void GPIO_Control::update() {
         digitalWrite(L1, HIGH);
         digitalWrite(L1, LOW);
     }
-
     softPwmWrite(PWM_R, power_right);
+    
     if(power_right < 0){
         std::cout<<"Tyl R \n";
         digitalWrite(R1, LOW);
@@ -122,9 +90,14 @@ void GPIO_Control::update() {
         digitalWrite(R1, LOW);
     }
 
+    // wysyłanie
+    custom_data_IO.update_variable_by_name_int("Moc_lewy_silnik", power_left);
+    custom_data_IO.update_variable_by_name_int("Moc_prawy_silnik", power_right);
+
+    last_update_time = clock.getElapsedTime().asMicroseconds();
 }
 
-int GPIO_Control::get_variable_int(std::string name)
+int GPIO_Control::get_variable_int(const std::string& name)
 {
     sf::Int32 variable;
     if(not custom_data_IO.get_variable_by_name_int(name, variable)) {
@@ -132,4 +105,52 @@ int GPIO_Control::get_variable_int(std::string name)
         throw std::exception();
     }
     return variable;
+}
+
+void GPIO_Control::update_power(int &power, sf::Int32 commend) {
+    switch (commend) {
+        case -1:
+            if(power > 0) {
+                power = 0;
+                break;
+            }
+                power -= 10;
+            if(power < -100)
+                power = -100;
+            break;
+
+        case 0:
+            if(power > 0) {
+                if(power < 10){ // w teorii nie powinno dochodzić do takich sytuacji
+                    power = 0;
+                } else {
+                    power -= 10;
+                }
+            } else if(power < 0) {
+                if(power < -10){ // w teorii nie powinno dochodzić do takich sytuacji
+                    power = 0;
+                } else {
+                    power += 10;
+                }
+            } else{
+                power = 0;
+            }
+            break;
+
+        case 1:
+            if(power < 0) {
+                power = 0;
+                break;
+            }
+
+
+            power += 10;
+            if(power > 100)
+                power = 100;
+            break;
+
+        default:
+            std::cout<<"Błąd przy konfiguracji mocy"<<std::endl;
+            throw std::exception();
+    }
 }

@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/SR_1.dir/main.cpp.o CMakeFiles/SR_1.dir/Connect_manager.cpp.o CMakeFiles/SR_1.dir/CM_Server.cpp.o CMakeFiles/SR_1.dir/Sended_struct.cpp.o -o SR_1  -lsfml-network -lsfml-system -lsfml-window -lwiringPi 

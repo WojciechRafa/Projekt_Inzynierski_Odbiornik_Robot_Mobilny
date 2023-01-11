@@ -13,39 +13,23 @@ Custom_Data_IO::Custom_Data_IO(unsigned short port_, sf::IpAddress remote_dev_ip
 void Custom_Data_IO::update() {
     if(mode == Pernament_Connector::p_connector_mode::establish_connection){
         Pernament_Connector::update();
+
+        if(get_mode() ==Pernament_Connector::p_connector_mode::pernament_communication){
+            update_period_microseconds = 100000;
+        }
     }else{
         // odbieranie
-        setBlocking(false);
-        sf::Packet recived_packet;
-        auto status = receive(recived_packet);
-        setBlocking(true);
-
-        if(status == sf::Socket::Status::Done){
-            update_recived(recived_packet);
+        sf::Packet received_packet;
+        if(receive_n_time(received_packet)){
+            update_received(received_packet);
         }
 
         // nadawanie
         auto sended_packet = prepare_packet_to_send();
-        status = send(sended_packet);
+        auto status = send(sended_packet);
 
-        // testowe wysyłanie i wyświetlanie
-//        static sf::Int32 data_int = 0;
-//        static float  data_float = 0;
-//
-//        auto recive_status_1 = update_variable_by_name_int("Wiadomosc_int", data_int);
-//        auto recive_status_2 = update_variable_by_name_float("Wiadomosc_float", data_float);
-//
-//        if(not(recive_status_1 and recive_status_2))
-//            throw std::exception();
-//
-//        data_int += 2;
-//        data_float += 1./3;
-//
-//        display_recived_data();
-//
-//        last_update_time = clock.getElapsedTime().asMicroseconds();
+        last_update_time = clock.getElapsedTime().asMicroseconds();
 
-//        display_recived_data();
     }
 }
 
@@ -83,8 +67,7 @@ std::vector<Custom_Data_IO::message> &Custom_Data_IO::get_recived_message_list()
     return recived_message_list;
 }
 
-bool Custom_Data_IO::update_recived(sf::Packet &recived_packet) {
-//    auto size = recived_acket.getDataSize();
+bool Custom_Data_IO::update_received(sf::Packet &recived_packet) {
     while (not recived_packet.endOfPacket()){
 
         sf::Int32 id;
@@ -181,4 +164,29 @@ bool Custom_Data_IO::get_variable_by_id_float(const std::string &name, float& va
     }
 
     return false;
+}
+
+bool Custom_Data_IO::receive_n_time(sf::Packet & received_packet) {
+    setBlocking(false);
+
+    bool was_any_good_packet = false;
+    sf::Packet local_packet;
+
+    for(int i = 0; i < max_number_of_recived_check; i++){
+        auto status = receive(local_packet);
+
+        if(status == sf::Socket::Done){
+            if(not local_packet.endOfPacket()) {
+                was_any_good_packet = true;
+                received_packet = local_packet;
+            }else{
+                break;
+            }
+
+        }else{
+            break;
+        }
+    }
+    setBlocking(true);
+    return was_any_good_packet;
 }

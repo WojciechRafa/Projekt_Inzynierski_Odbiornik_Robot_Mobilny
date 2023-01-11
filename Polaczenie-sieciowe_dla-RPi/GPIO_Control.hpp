@@ -10,7 +10,7 @@
 
 class GPIO_Control: public Time_Object{
 public:
-    GPIO_Control(Custom_Data_IO& custom_data_IO_);
+    explicit GPIO_Control(Custom_Data_IO& custom_data_IO_);
     void update() override;
 private:
     Custom_Data_IO& custom_data_IO;
@@ -26,7 +26,9 @@ private:
     int power_left = 0;
     int power_right = 0;
 
-    int get_variable_int(std::string name);
+    int get_variable_int(const std::string& name);
+
+    static void update_power(int& actual_power, sf::Int32 commend);
 };
 
 

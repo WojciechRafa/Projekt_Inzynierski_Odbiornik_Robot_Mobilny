@@ -34,19 +34,22 @@ public:
 
     std::vector<Custom_Data_IO::message>& get_recived_message_list();
 
+
 private:
     std::vector<Custom_Data_IO::message> sended_message_list;
     std::vector<Custom_Data_IO::message> recived_message_list;
 
     Custom_Data_IO::message* find_message_by_id_recived(sf::Int32 id);
 
-    bool update_recived(sf::Packet& recived_packet);
+    bool update_received(sf::Packet& recived_packet);
 
     sf::Packet prepare_packet_to_send();
 
-
+    bool receive_n_time(sf::Packet& received_packet);
     void display_recived_data();
-};
 
+    const int max_number_of_recived_check = 10;
+};
+// :)
 
 #endif //INZYNIERKA_CUSTOM_DATA_IO_HPP

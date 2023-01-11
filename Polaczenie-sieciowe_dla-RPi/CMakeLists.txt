@@ -23,5 +23,7 @@ add_executable(Inzynierka main.cpp
 	Custom_Data_IO.cpp Custom_Data_IO.hpp 
 	GPIO_Control.cpp GPIO_Control.hpp)
         
-target_link_libraries(Inzynierka sfml-network sfml-system sfml-window ${OpenCV_LIBS} wiringPi)
+target_link_libraries(Inzynierka sfml-network sfml-system sfml-window ${OpenCV_LIBS}
+		wiringPi
+		)
 #target_compile_options(Inzynierka PRIVATE -Wall)

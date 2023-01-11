@@ -40,8 +40,10 @@ bool System::update() {
             if(custom_data_io -> need_update())
                 time_object_list.push_back(custom_data_io.get());
 
-            if(gpio_control -> need_update())
+            if(gpio_control -> need_update()) {
+//                bool elo = gpio_control -> need_update();
                 time_object_list.push_back(gpio_control.get());
+            }
         }
 
 
@@ -61,7 +63,7 @@ bool System::update() {
             custom_data_io = std::make_unique<Custom_Data_IO>(port + 1, remote_ip_address);
             configure_custom_data();
 
-            gpio_control = std::make_unique<GPIO_Control>(*custom_data_io.get());
+            gpio_control = std::make_unique<GPIO_Control>(*custom_data_io);
 
             std::cout<<"Procedura zawiązywania polaczenia przez Broadcast zakonczona !"<<std::endl;
             broadcast_connector = nullptr;
@@ -88,35 +90,7 @@ bool System::update() {
 }
 
 void System::configure_custom_data() {
-    // stare
 
-//    Custom_Data_IO::message sended_message_1;
-//    Custom_Data_IO::message sended_message_2;
-//
-//    Custom_Data_IO::message recived_message_1;
-//    Custom_Data_IO::message recived_message_2;
-//
-//    sended_message_1.is_int = true;
-//    sended_message_1.name   = "Wiadomosc_int";
-//    sended_message_1.id     = 1;
-//
-//    sended_message_2.is_int = false;
-//    sended_message_2.name   = "Wiadomosc_float";
-//    sended_message_2.id     = 2;
-//
-//    recived_message_1.is_int = true;
-//    recived_message_1.name   = "Wiadomosc_int";
-//    recived_message_1.id     = 1;
-//
-//    recived_message_2.is_int = false;
-//    recived_message_2.name   = "Wiadomosc_float";
-//    recived_message_2.id     = 2;
-//
-//    custom_data_io->add_sended_message(std::move(sended_message_1));
-//    custom_data_io->add_sended_message(std::move(sended_message_2));
-//
-//    custom_data_io->add_recived_message(std::move(recived_message_1));
-//    custom_data_io->add_recived_message(std::move(recived_message_2));
     Custom_Data_IO::message sended_message_1;
     Custom_Data_IO::message sended_message_2;
 
@@ -141,7 +115,7 @@ void System::configure_custom_data() {
     sended_message_1.name   = "Moc_lewy_silnik";
     sended_message_1.id     = 1;
 
-    sended_message_2.is_int = false;
+    sended_message_2.is_int = true;
     sended_message_2.name   = "Moc_prawy_silnik";
     sended_message_2.id     = 2;
 
